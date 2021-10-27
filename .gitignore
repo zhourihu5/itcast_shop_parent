@@ -1,0 +1,8 @@
+# Project exclude paths
+/itcast_dw_web/target/
+/itcast_shop_canal_client/target/
+/itcast_shop_common/target/
+/itcast_shop_data_simulator/target/
+/itcast_shop_druid/target/
+/itcast_shop_phoenix/target/
+/itcast_shop_realtime_etl/target/
