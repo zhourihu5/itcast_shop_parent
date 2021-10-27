@@ -6,3 +6,12 @@
 /itcast_shop_druid/target/
 /itcast_shop_phoenix/target/
 /itcast_shop_realtime_etl/target/
+/.idea/.gitignore
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/runConfigurations.xml
+/.idea/uiDesigner.xml
+/.idea/vcs.xml
