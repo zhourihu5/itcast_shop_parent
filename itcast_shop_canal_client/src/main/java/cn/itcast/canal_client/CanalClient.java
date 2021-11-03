@@ -4,11 +4,15 @@ import cn.itcast.canal.bean.CanalRowData;
 import cn.itcast.canal_client.kafka.KafkaSender;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;
+import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
+import com.alibaba.otter.canal.common.utils.AddressUtils;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.google.protobuf.InvalidProtocolBufferException;
 import cn.itcast.canal_client.util.ConfigUtil;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +35,17 @@ public class CanalClient {
      */
     public CanalClient(){
         //初始化连接
-        canalConnector = CanalConnectors.newClusterConnector(ConfigUtil.zookeeperServerIp(),
+//        canalConnector = CanalConnectors.newClusterConnector(ConfigUtil.zookeeperServerIp(),
+//                ConfigUtil.canalServerDestination(),
+//                ConfigUtil.canalServerUsername(),
+//                ConfigUtil.canalServerPassword()
+//                );
+        canalConnector= CanalConnectors.newSingleConnector(
+                new InetSocketAddress(AddressUtils.getHostIp(),11111),
                 ConfigUtil.canalServerDestination(),
                 ConfigUtil.canalServerUsername(),
                 ConfigUtil.canalServerPassword()
-                );
-
+        );
         //实例化kafka的生产者工具类
         kafkaSender = new KafkaSender();
     }

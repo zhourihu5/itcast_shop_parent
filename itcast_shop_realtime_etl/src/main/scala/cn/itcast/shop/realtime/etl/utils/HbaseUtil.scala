@@ -21,6 +21,7 @@ object HbaseUtil {
   var hbaseConfig: Configuration = HBaseConfiguration.create
   hbaseConfig = HBaseConfiguration.create
   hbaseConfig.set("hbase.defaults.for.version.skip", "true")
+  hbaseConfig .set("dfs.client.use.datanode.hostname", "true")//added by zhourihu 2021年11月01日12:56:11
   //创建连接池对象
   lazy val pool: HbaseConnectionPool = new HbaseConnectionPool(config, hbaseConfig)
 

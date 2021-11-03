@@ -21,34 +21,16 @@
  */
 -->
 <configuration>
-    <property>
-        <name>hbase.rootdir</name>
-        <value>hdfs://node1:8020/hbase</value>
-    </property>
-
-    <property>
-        <name>hbase.cluster.distributed</name>
-        <value>true</value>
-    </property>
-
-    <!-- 0.98后的新变动，之前版本没有.port,默认端口为60000 -->
-    <property>
-        <name>hbase.master.port</name>
-        <value>16000</value>
-    </property>
-
-    <property>
-        <name>hbase.zookeeper.property.clientPort</name>
-        <value>2181</value>
-    </property>
-
-    <property>
-        <name>hbase.zookeeper.quorum</name>
-        <value>node1:2181,node2:2181,node3:2181</value>
-    </property>
-
-    <property>
-        <name>hbase.zookeeper.property.dataDir</name>
-        <value>/export/servers/zookeeper-3.4.5-cdh5.14.0/zkdatas</value>
-    </property>
+<property><name>hbase.master.info.port</name><value>60010</value></property>
+<property><name>DIR</name><value>/etc/hbase</value></property>
+<property><name>hbase.cluster.distributed</name><value>true</value></property>
+<property><name>hbase.master.port</name><value>60000</value></property>
+<property><name>hbase.zookeeper.quorum</name><value>zookeeper</value></property>
+<property><name>hbase.rootdir</name><value>hdfs://hdfs-namenode:8020/hbase</value></property>
+<property><name>hbase.master.info.port</name><value>60010</value></property>
+<property><name>DIR</name><value>/etc/hbase</value></property>
+<property><name>hbase.cluster.distributed</name><value>true</value></property>
+<property><name>hbase.master.port</name><value>60000</value></property>
+<property><name>hbase.zookeeper.quorum</name><value>zookeeper</value></property>
+<property><name>hbase.rootdir</name><value>hdfs://hdfs-namenode:8020/hbase</value></property>
 </configuration>

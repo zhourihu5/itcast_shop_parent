@@ -57,27 +57,27 @@ public class OrderGoodsMain {
             orderGoods.insertOrder();
 
             // 生成订单明细
-            //orderGoods.insertOrderGoods();
-//
-//            // 更改订单详情的创建时间
-//            orderGoods.updateOrderGoodsCreateTime();
-//
-//            // 更改订单中商品价格与购买数量
-//            orderGoods.updateOrderGoodsPriceAndNum();
-//
-//            // 修改订单明细的总价格
-//            orderGoods.updateOrderGoodsMoney();
-//
-//            //orderGoods.getOrderMoney();
-//
+            orderGoods.insertOrderGoods();
+
+            // 更改订单详情的创建时间
+            orderGoods.updateOrderGoodsCreateTime();
+
+            // 更改订单中商品价格与购买数量
+            orderGoods.updateOrderGoodsPriceAndNum();
+
+            // 修改订单明细的总价格
+            orderGoods.updateOrderGoodsMoney();
+
+            //orderGoods.getOrderMoney();
+
             // 修改订单付款的付款价格
-//            orderGoods.updateOrderTotalMoney();
-//
-//            // 修改订单付款的支付方式
-//            orderGoods.updateOrderpaytype();
-//
-//            // 修改订单配送地址
-//            orderGoods.updateOrderAddress();
+            orderGoods.updateOrderTotalMoney();
+
+            // 修改订单付款的支付方式
+            orderGoods.updateOrderpaytype();
+
+            // 修改订单配送地址
+            orderGoods.updateOrderAddress();
 
             createTime = endTime;
 
