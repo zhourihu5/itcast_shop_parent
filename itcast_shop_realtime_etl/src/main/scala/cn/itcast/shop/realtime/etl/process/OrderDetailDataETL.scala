@@ -77,23 +77,28 @@ case class OrderDetailDataETL(env: StreamExecutionEnvironment) extends MysqlBase
 
       //初始化资源，获取连接对象
       override def open(parameters: Configuration): Unit = {
+        println("hbase open start")
         //初始化hbase的连接对象
         connection = HbaseUtil.getPool().getConnection
         //初始化要写入的表名
         table = connection.getTable(TableName.valueOf(GlobalConfigUtil.`hbase.table.orderdetail`))
+        println("hbase open end")
       }
 
       //关闭连接,释放资源
       override def close(): Unit = {
+        println("hbase close start")
         if(table!=null) table.close()
         if(!connection.isClosed) {
           //将连接放回到连接池
           HbaseUtil.getPool().returnConnection(connection)
         }
+        println("hbase close end")
       }
 
       //将数据一条条的写入到hbase
       override def invoke(orderGoodsWideEntity: OrderGoodsWideEntity, context: SinkFunction.Context[_]): Unit = {
+        println("hbase invoke start")
         //构建Put对象
         //使用订单明细id作为rowkey
         var rowKey: Array[Byte] = Bytes.toBytes(orderGoodsWideEntity.getOgId)
@@ -143,8 +148,10 @@ case class OrderDetailDataETL(env: StreamExecutionEnvironment) extends MysqlBase
         put.addColumn(family, regionIdCol, Bytes.toBytes(orderGoodsWideEntity.regionId.toString))
         put.addColumn(family, regionNameCol, Bytes.toBytes(orderGoodsWideEntity.regionName.toString))
 
+        println("hbase table put start")
         //3：执行put操作
         table.put(put)
+        println("hbase invoke end")
       }
     })
   }

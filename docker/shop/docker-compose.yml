@@ -11,8 +11,8 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    volumes:
-      - zookeeper_data:/bitnami/zookeeper
+#    volumes:
+#      - zookeeper_data:/bitnami/zookeeper
   kafka:
     image: docker.io/bitnami/kafka:3
     networks:
@@ -26,12 +26,14 @@ services:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_CFG_BROKER_ID=0
       - ALLOW_PLAINTEXT_LISTENER=yes
-    volumes:
-      - kafka_0_data:/bitnami/kafka
+#    volumes:
+#      - kafka_0_data:/bitnami/kafka
     depends_on:
       - zookeeper
   hbase-master:
     image: gradiant/hbase-master
+    #    hostname: 192.168.100.83
+    hostname: node1
     networks:
       redis:
         ipv4_address: 172.25.0.7
@@ -41,13 +43,17 @@ services:
       - HBASE_CONF_hbase_master_info_port=60010
       - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
     ports:
-      - 60010:60010
+      - 16000:16000
+      - 16010:16010
       - 60000:60000
+      - 60010:60010
     depends_on:
       - zookeeper
       - hdfs-namenode
   hbase-region:
     image: gradiant/hbase-region
+#    hostname: 192.168.100.83
+    hostname: node2
     networks:
       redis:
         ipv4_address: 172.25.0.8
@@ -58,6 +64,8 @@ services:
       - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
     ports:
       - 60030:60030
+      - 16020:16020
+      - 16030:16030
     depends_on:
       - hbase-master
 
@@ -110,7 +118,117 @@ services:
     ports:
       - 11111:11111
 
-
+#
+#  postgres:
+#    container_name: postgres
+#    image: postgres:latest
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.11
+##    volumes:
+##      - metadata_data:/var/lib/postgresql/data
+#    environment:
+#      - POSTGRES_PASSWORD=FoolishPassword
+#      - POSTGRES_USER=druid
+#      - POSTGRES_DB=druid
+#
+#  coordinator:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.12
+#    container_name: coordinator
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - coordinator_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#    ports:
+#      - "8081:8081"
+#    command:
+#      - coordinator
+#    env_file:
+#      - environment
+#
+#  broker:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.13
+#    container_name: broker
+##    volumes:
+##      - broker_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8082:8082"
+#    command:
+#      - broker
+#    env_file:
+#      - environment
+#
+#  historical:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.14
+#    container_name: historical
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - historical_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8083:8083"
+#    command:
+#      - historical
+#    env_file:
+#      - environment
+#
+#  middlemanager:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.15
+#    container_name: middlemanager
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - middle_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8091:8091"
+#      - "8100-8105:8100-8105"
+#    command:
+#      - middleManager
+#    env_file:
+#      - environment
+#
+#  router:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.16
+#    container_name: router
+##    volumes:
+##      - router_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8888:8888"
+#    command:
+#      - router
+#    env_file:
+#      - environment
 
 
 networks:
@@ -121,10 +239,10 @@ networks:
       config:
         - subnet: "172.25.0.0/24"
 
-volumes:
+#volumes:
 #  openresty_data:
 #    driver: local
-  zookeeper_data:
-    driver: local
-  kafka_0_data:
-    driver: local
+#  zookeeper_data:
+#    driver: local
+#  kafka_0_data:
+#    driver: local

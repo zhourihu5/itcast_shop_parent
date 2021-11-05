@@ -14,6 +14,8 @@
         <module>itcast_shop_realtime_etl</module>
         <module>itcast_shop_data_simulator</module>
         <module>itcast_shop_druid</module>
+        <module>itcast_shop_phoenix</module>
+        <module>itcast_dw_web</module>
     </modules>
 
     <repositories>
