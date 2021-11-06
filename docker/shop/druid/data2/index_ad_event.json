@@ -1,0 +1,85 @@
+{
+  "spec": {
+  	  "dataSchema": {
+	    "dataSource": "ad_event",
+	    "parser": {
+	      "type": "String",
+	      "parseSpec": {
+	        "format": "json",
+	        "dimensionsSpec": {
+	          "dimensions": [
+	            "city",
+	            "platform"
+	          ]
+	        },
+	        "timestampSpec": {
+	          "column": "timestamp",
+	          "format": "auto"
+	        }
+	      }
+	    },
+	    "metricsSpec": [
+	      {
+	        "type": "count",
+	        "name": "count"
+	      },
+	      {
+	        "type": "longSum",
+	        "name": "click",
+	        "fieldName": "click",
+	        "expression": null
+	      }
+	    ],
+	    "granularitySpec": {
+	      "type": "uniform",
+	      "segmentGranularity": "DAY",
+	      "queryGranularity": "HOUR",
+	      "rollup": true,
+	      "intervals": [
+	        "2018-12-01T00:00:00.000Z/2018-12-03T00:00:00.000Z"
+	      ]
+	    },
+	    "transformSpec": {
+	      "filter": null,
+	      "transforms": []
+	    }
+	  },
+	  "ioConfig": {
+	    "type": "index",
+	    "firehose": {
+	      "type": "local",
+	      "baseDir": "/home/druid/data2",
+	      "filter": "ad_event.json",
+	      "parser": null
+	    },
+	    "appendToExisting": false
+	  },
+	  "tuningConfig": {
+	    "type": "index",
+	    "maxRowsPerSegment": null,
+	    "maxRowsInMemory": 1000000,
+	    "maxBytesInMemory": 0,
+	    "maxTotalRows": null,
+	    "numShards": null,
+	    "partitionDimensions": [],
+	    "indexSpec": {
+	      "bitmap": {
+	        "type": "concise"
+	      },
+	      "dimensionCompression": "lz4",
+	      "metricCompression": "lz4",
+	      "longEncoding": "longs"
+	    },
+	    "maxPendingPersists": 0,
+	    "buildV9Directly": true,
+	    "forceGuaranteedRollup": false,
+	    "reportParseExceptions": false,
+	    "pushTimeout": 0,
+	    "segmentWriteOutMediumFactory": null,
+	    "logParseExceptions": false,
+	    "maxParseExceptions": 2147483647,
+	    "maxSavedParseExceptions": 0
+	  }
+  },
+  "type": "index"
+}

@@ -1,0 +1,248 @@
+#version: "2"
+version: "3.7"
+
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    networks:
+      redis:
+        ipv4_address: 172.25.0.4
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+#    volumes:
+#      - zookeeper_data:/bitnami/zookeeper
+  kafka:
+    image: docker.io/bitnami/kafka:3
+    networks:
+      redis:
+        ipv4_address: 172.25.0.6
+#    hostname: kafka
+    hostname: 192.168.100.83
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_BROKER_ID=0
+      - ALLOW_PLAINTEXT_LISTENER=yes
+#    volumes:
+#      - kafka_0_data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+  hbase-master:
+    image: gradiant/hbase-master
+    #    hostname: 192.168.100.83
+    hostname: node1
+    networks:
+      redis:
+        ipv4_address: 172.25.0.7
+    environment:
+      - HBASE_CONF_hbase_rootdir=hdfs://hdfs-namenode:8020/hbase
+      - HBASE_CONF_hbase_master_port=60000
+      - HBASE_CONF_hbase_master_info_port=60010
+      - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
+    ports:
+      - 16000:16000
+      - 16010:16010
+      - 60000:60000
+      - 60010:60010
+    depends_on:
+      - zookeeper
+      - hdfs-namenode
+  hbase-region:
+    image: gradiant/hbase-region
+#    hostname: 192.168.100.83
+    hostname: node2
+    networks:
+      redis:
+        ipv4_address: 172.25.0.8
+    environment:
+      - HBASE_CONF_hbase_rootdir=hdfs://hdfs-namenode:8020/hbase
+      - HBASE_CONF_hbase_master=hbase-master:60000
+      - HBASE_CONF_hbase_regionserver_info_port=60030
+      - HBASE_CONF_hbase_zookeeper_quorum=zookeeper
+    ports:
+      - 60030:60030
+      - 16020:16020
+      - 16030:16030
+    depends_on:
+      - hbase-master
+
+  hdfs-namenode:
+    image: harisekhon/hadoop
+    hostname: node1
+    #    hostname: 192.168.100.83
+    networks:
+      redis:
+        ipv4_address: 172.25.0.9
+    volumes:
+      - ./hadoop/hadoop/hdfs-site.xml:/hadoop-2.8.2/etc/hadoop/hdfs-site.xml
+    ports:
+      - 8020:8020
+      - 8042:8042
+      - 8088:8088
+      - 9000:9000
+      - 9864:9864
+      - 9870:9870
+      - 10020:10020
+      - 19888:19888
+      - 50010:50010
+      - 50020:50020
+      - 50070:50070
+      - 50075:50075
+      - 50090:50090
+
+  redis:
+    image: redis
+    networks:
+      redis:
+        ipv4_address: 172.25.0.5
+    hostname: redis
+    ports:
+      - 6379:6379
+  canal-server:
+    image: canal/canal-server
+    networks:
+      redis:
+        ipv4_address: 172.25.0.10
+#    hostname: redis
+    environment:
+      - canal.destinations=example 
+      - canal.instance.master.address=192.168.100.83:3306  
+      - canal.instance.dbUsername=root  
+      - canal.instance.dbPassword=root  
+      - canal.instance.connectionCharset=UTF-8 
+      - canal.instance.tsdb.enable=true 
+      - canal.instance.gtidon=false  
+    ports:
+      - 11111:11111
+
+#
+#  postgres:
+#    container_name: postgres
+#    image: postgres:latest
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.11
+##    volumes:
+##      - metadata_data:/var/lib/postgresql/data
+#    environment:
+#      - POSTGRES_PASSWORD=FoolishPassword
+#      - POSTGRES_USER=druid
+#      - POSTGRES_DB=druid
+#
+#  coordinator:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.12
+#    container_name: coordinator
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - coordinator_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#    ports:
+#      - "8081:8081"
+#    command:
+#      - coordinator
+#    env_file:
+#      - environment
+#
+#  broker:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.13
+#    container_name: broker
+##    volumes:
+##      - broker_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8082:8082"
+#    command:
+#      - broker
+#    env_file:
+#      - environment
+#
+#  historical:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.14
+#    container_name: historical
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - historical_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8083:8083"
+#    command:
+#      - historical
+#    env_file:
+#      - environment
+#
+#  middlemanager:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.15
+#    container_name: middlemanager
+##    volumes:
+##      - druid_shared:/opt/shared
+##      - middle_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8091:8091"
+#      - "8100-8105:8100-8105"
+#    command:
+#      - middleManager
+#    env_file:
+#      - environment
+#
+#  router:
+#    image: apache/druid:0.22.0
+#    networks:
+#      redis:
+#        ipv4_address: 172.25.0.16
+#    container_name: router
+##    volumes:
+##      - router_var:/opt/druid/var
+#    depends_on:
+#      - zookeeper
+#      - postgres
+#      - coordinator
+#    ports:
+#      - "8888:8888"
+#    command:
+#      - router
+#    env_file:
+#      - environment
+
+
+networks:
+  redis:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.25.0.0/24"
+
+#volumes:
+#  openresty_data:
+#    driver: local
+#  zookeeper_data:
+#    driver: local
+#  kafka_0_data:
+#    driver: local

@@ -1,16 +1,11 @@
-#version: "2"
-version: "3.7"
+version: "3"
 
 services:
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
     container_name: namenode
-    hostname: namenode
-    networks:
-      redis:
-        ipv4_address: 172.25.0.20
-    #    volumes:
-    #      - hadoop_namenode:/hadoop/dfs/name
+#    volumes:
+#      - hadoop_namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=testmake
     env_file:
@@ -23,13 +18,8 @@ services:
   datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
     container_name: datanode
-    hostname: datanode
-    networks:
-      redis:
-        ipv4_address: 172.25.0.2
-
-    #    volumes:
-    #      - hadoop_datanode:/hadoop/dfs/data
+#    volumes:
+#      - hadoop_datanode:/hadoop/dfs/data
     environment:
       SERVICE_PRECONDITION: "namenode:50070"
     env_file:
@@ -40,10 +30,6 @@ services:
   resourcemanager:
     image: bde2020/hadoop-resourcemanager:2.0.0-hadoop2.7.4-java8
     container_name: resourcemanager
-    hostname: resourcemanager
-    networks:
-      redis:
-        ipv4_address: 172.25.0.3
     environment:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075"
     env_file:
@@ -51,13 +37,9 @@ services:
     ports:
       - 8088:8088
 
-  nodemanager:
+  nodemanager1:
     image: bde2020/hadoop-nodemanager:2.0.0-hadoop2.7.4-java8
     container_name: nodemanager
-    hostname: nodemanager
-    networks:
-      redis:
-        ipv4_address: 172.25.0.4
     environment:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 resourcemanager:8088"
     env_file:
@@ -68,48 +50,18 @@ services:
   historyserver:
     image: bde2020/hadoop-historyserver:2.0.0-hadoop2.7.4-java8
     container_name: historyserver
-    hostname: historyserver
-    networks:
-      redis:
-        ipv4_address: 172.25.0.5
-
-    #    volumes:
-    #      - hadoop_historyserver:/hadoop/yarn/timeline
+#    volumes:
+#      - hadoop_historyserver:/hadoop/yarn/timeline
     environment:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 resourcemanager:8088"
     env_file:
       - ./hadoop.env
     ports:
       - 8188:8188
-  hbase:
-    image: yulin/hbase-standalone:1.0.1-hbase2.0.0
-    container_name: hbase
-    hostname: hbase
-    networks:
-      redis:
-        ipv4_address: 172.25.0.6
-    #    volumes:
-    #      - hbase_data:/hbase-data
-    #      - hbase_zookeeper_data:/zookeeper-data
-    ports:
-      - 16000:16000
-      - 16010:16010
-      - 16020:16020
-      - 16030:16030
-    environment:
-      SERVICE_PRECONDITION: "namenode:50070 datanode:50075 zookeeper:2181"
-    env_file:
-      - ./hbase-standalone.env
-    depends_on:
-      - namenode
-      - datanode
-      - zookeeper
-  zookeeper:
+
+  zoo:
     image: zookeeper:3.4.10
-    container_name: zookeeper
-    networks:
-      redis:
-        ipv4_address: 172.25.0.7
+    container_name: zoo
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=0.0.0.0:2888:3888
@@ -117,42 +69,37 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
-
-  kafka:
-    image: docker.io/bitnami/kafka:3
-    container_name: kafka
-    hostname: kafka
-#    hostname: 192.168.100.83
-    networks:
-      redis:
-        ipv4_address: 172.25.0.8
+  hbase:
+    image: yulin/hbase-standalone:1.0.1-hbase2.0.0
+    container_name: hbase
+    hostname: hbase
+#    volumes:
+#      - hbase_data:/hbase-data
+#      - hbase_zookeeper_data:/zookeeper-data
     ports:
-      - "9092:9092"
+      - 16000:16000
+      - 16010:16010
+      - 16020:16020
+      - 16030:16030
     environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_BROKER_ID=0
-      - ALLOW_PLAINTEXT_LISTENER=yes
-    #    volumes:
-    #      - kafka_0_data:/bitnami/kafka
+      SERVICE_PRECONDITION: "namenode:50070 datanode:50075 zoo:2181"
+    env_file:
+      - ./hbase-standalone.env
     depends_on:
-      - zookeeper
+      - namenode
+      - datanode
+      - zoo
 
   redis:
     image: redis
     container_name: redis
     hostname: redis
-    networks:
-      redis:
-        ipv4_address: 172.25.0.9
     ports:
       - 6379:6379
   canal-server:
     image: canal/canal-server
     container_name: canal-server
     hostname: canal-server
-    networks:
-      redis:
-        ipv4_address: 172.25.0.10
     environment:
       - canal.destinations=example
       - canal.instance.master.address=192.168.100.83:3306
@@ -163,21 +110,23 @@ services:
       - canal.instance.gtidon=false
     ports:
       - 11111:11111
-
-
-
-networks:
-  redis:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: "172.25.0.0/24"
+  kafka:
+    image: docker.io/bitnami/kafka:3
+    container_name: kafka
+    hostname: kafka
+    #    hostname: 192.168.100.83
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zoo:2181
+      - KAFKA_CFG_BROKER_ID=0
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    #    volumes:
+    #      - kafka_0_data:/bitnami/kafka
+    depends_on:
+      - zoo
 
 #volumes:
-#  openresty_data:
-#    driver: local
-#  zookeeper_data:
-#    driver: local
-#  kafka_0_data:
-#    driver: local
+#  hadoop_namenode:
+#  hadoop_datanode:
+#  hadoop_historyserver:

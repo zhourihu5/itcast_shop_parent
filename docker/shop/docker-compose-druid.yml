@@ -1,0 +1,161 @@
+#version: "2"
+version: "3.7"
+
+services:
+
+  zookeeper:
+    image: zookeeper:3.4.10
+    container_name: zookeeper
+    networks:
+      redis:
+        ipv4_address: 172.25.0.7
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    networks:
+      redis:
+        ipv4_address: 172.25.0.11
+#    volumes:
+#      - metadata_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=FoolishPassword
+      - POSTGRES_USER=druid
+      - POSTGRES_DB=druid
+
+  coordinator:
+    image: apache/druid:0.22.0
+    container_name: coordinator
+    hostname: coordinator
+    networks:
+      redis:
+        ipv4_address: 172.25.0.12
+    volumes:
+      - ./druid:/home/druid
+#      - druid_shared:/opt/shared
+#      - coordinator_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+    ports:
+      - "8081:8081"
+    command:
+      - coordinator
+    env_file:
+      - environment
+
+  broker:
+    image: apache/druid:0.22.0
+    container_name: broker
+    hostname: broker
+    networks:
+      redis:
+        ipv4_address: 172.25.0.13
+    volumes:
+      - ./druid:/home/druid
+#    volumes:
+#      - broker_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - "8082:8082"
+    command:
+      - broker
+    env_file:
+      - environment
+
+  historical:
+    image: apache/druid:0.22.0
+    container_name: historical
+    hostname: historical
+    networks:
+      redis:
+        ipv4_address: 172.25.0.14
+    volumes:
+      - ./druid:/home/druid
+#    volumes:
+#      - druid_shared:/opt/shared
+#      - historical_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - "8083:8083"
+    command:
+      - historical
+    env_file:
+      - environment
+
+  middlemanager:
+    image: apache/druid:0.22.0
+    container_name: middlemanager
+    hostname: middlemanager
+    networks:
+      redis:
+        ipv4_address: 172.25.0.15
+    volumes:
+      - ./druid:/home/druid
+#    volumes:
+#      - druid_shared:/opt/shared
+#      - middle_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - "8091:8091"
+      - "8100-8105:8100-8105"
+    command:
+      - middleManager
+    env_file:
+      - environment
+
+  router:
+    image: apache/druid:0.22.0
+    container_name: router
+    hostname: router
+    networks:
+      redis:
+        ipv4_address: 172.25.0.16
+    volumes:
+      - ./druid:/home/druid
+#    volumes:
+#      - router_var:/opt/druid/var
+    depends_on:
+      - zookeeper
+      - postgres
+      - coordinator
+    ports:
+      - "8888:8888"
+    command:
+      - router
+    env_file:
+      - environment
+
+
+networks:
+  redis:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.25.0.0/24"
+
+#volumes:
+#  openresty_data:
+#    driver: local
+#  zookeeper_data:
+#    driver: local
+#  kafka_0_data:
+#    driver: local

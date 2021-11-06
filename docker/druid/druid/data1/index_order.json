@@ -1,0 +1,85 @@
+{
+  "spec": {
+  	  "dataSchema": {
+	    "dataSource": "demo_order",
+	    "parser": {
+	      "type": "String",
+	      "parseSpec": {
+	        "format": "json",
+	        "dimensionsSpec": {
+	          "dimensions": [
+	            "category",
+	            "areaName"
+	          ]
+	        },
+	        "timestampSpec": {
+	          "column": "timestamp",
+	          "format": "auto"
+	        }
+	      }
+	    },
+	    "metricsSpec": [
+	      {
+	        "type": "count",
+	        "name": "count"
+	      },
+	      {
+	        "type": "longSum",
+	        "name": "money",
+	        "fieldName": "money",
+	        "expression": null
+	      }
+	    ],
+	    "granularitySpec": {
+	      "type": "uniform",
+	      "segmentGranularity": "DAY",
+	      "queryGranularity": "HOUR",
+	      "rollup": true,
+	      "intervals": [
+	        "2019-05-06T00:00:00.000Z/2019-05-09T00:00:00.000Z"
+	      ]
+	    },
+	    "transformSpec": {
+	      "filter": null,
+	      "transforms": []
+	    }
+	  },
+	  "ioConfig": {
+	    "type": "index",
+	    "firehose": {
+	      "type": "local",
+	      "baseDir": "/home/druid/data1",
+	      "filter": "order.json",
+	      "parser": null
+	    },
+	    "appendToExisting": false
+	  },
+	  "tuningConfig": {
+	    "type": "index",
+	    "maxRowsPerSegment": null,
+	    "maxRowsInMemory": 1000000,
+	    "maxBytesInMemory": 0,
+	    "maxTotalRows": null,
+	    "numShards": null,
+	    "partitionDimensions": [],
+	    "indexSpec": {
+	      "bitmap": {
+	        "type": "concise"
+	      },
+	      "dimensionCompression": "lz4",
+	      "metricCompression": "lz4",
+	      "longEncoding": "longs"
+	    },
+	    "maxPendingPersists": 0,
+	    "buildV9Directly": true,
+	    "forceGuaranteedRollup": false,
+	    "reportParseExceptions": false,
+	    "pushTimeout": 0,
+	    "segmentWriteOutMediumFactory": null,
+	    "logParseExceptions": false,
+	    "maxParseExceptions": 2147483647,
+	    "maxSavedParseExceptions": 0
+	  }
+  },
+  "type": "index"
+}
