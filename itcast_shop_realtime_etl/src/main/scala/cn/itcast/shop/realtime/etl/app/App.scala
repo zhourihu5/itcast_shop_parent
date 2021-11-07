@@ -44,8 +44,8 @@ object App {
     env.getCheckpointConfig.setMaxConcurrentCheckpoints(1)
     env.getCheckpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     // checkpoint的HDFS保存位置
-//    env.setStateBackend(new FsStateBackend("hdfs://node1:8020/flink/checkpoint/"))
-    env.setStateBackend(new FsStateBackend("hdfs://node1:9000/flink/checkpoint/"))
+    env.setStateBackend(new FsStateBackend("hdfs://node1:8020/flink/checkpoint/"))
+//    env.setStateBackend(new FsStateBackend("hdfs://node1:9000/flink/checkpoint/"))
     // 配置两次checkpoint的最小时间间隔
     env.getCheckpointConfig.setMinPauseBetweenCheckpoints(1000)
     // 配置checkpoint的超时时长

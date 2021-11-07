@@ -21,7 +21,32 @@ public class PhoenixJDBCDemo {
 
         //3：创建statement
         Statement statement = connection.createStatement();
-
+        boolean createView = statement.execute("create view if not exists \"dwd_order_detail\"(\n" +
+                "    \"rowid\" varchar primary key,\n" +
+                "    \"detail\".\"ogId\" varchar,\n" +
+                "    \"detail\".\"orderId\" varchar,\n" +
+                "    \"detail\".\"goodsId\" varchar,\n" +
+                "    \"detail\".\"goodsNum\" varchar,\n" +
+                "    \"detail\".\"goodsPrice\" varchar,\n" +
+                "    \"detail\".\"goodsName\" varchar,\n" +
+                "    \"detail\".\"shopId\" varchar,\n" +
+                "    \"detail\".\"goodsThirdCatId\" varchar,\n" +
+                "    \"detail\".\"goodsThirdCatName\" varchar,\n" +
+                "    \"detail\".\"goodsSecondCatId\" varchar,\n" +
+                "    \"detail\".\"goodsSecondCatName\" varchar,\n" +
+                "    \"detail\".\"goodsFirstCatId\" varchar,\n" +
+                "    \"detail\".\"goodsFirstCatName\" varchar,\n" +
+                "    \"detail\".\"areaId\" varchar,\n" +
+                "    \"detail\".\"shopName\" varchar,\n" +
+                "    \"detail\".\"shopCompany\" varchar,\n" +
+                "    \"detail\".\"cityId\" varchar,\n" +
+                "    \"detail\".\"cityName\" varchar,\n" +
+                "    \"detail\".\"regionId\" varchar,\n" +
+                "    \"detail\".\"regionName\" varchar\n" +
+                ")");
+        System.out.println("createView:"+createView);
+        boolean createLocalIndex=statement.execute("create local index if not exists \"idx_dwd_order_detail\" on \"dwd_order_detail\"(\"detail\".\"goodsThirdCatName\", \"detail\".\"goodsSecondCatName\", \"detail\".\"goodsFirstCatName\", \"detail\".\"cityName\", \"detail\".\"regionName\")");
+        System.out.println("createLocalIndex:"+createLocalIndex);
         //4：执行sql查询
         ResultSet resultSet = statement.executeQuery("select *from \"dwd_order_detail\"");
 

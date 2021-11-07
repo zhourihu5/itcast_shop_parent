@@ -1,7 +1,6 @@
 package cn.itcast.shop.realtime.etl.process
 
 import java.util.concurrent.TimeUnit
-
 import cn.itcast.canal.bean.CanalRowData
 import cn.itcast.shop.realtime.etl.`trait`.MysqlBaseETL
 import cn.itcast.shop.realtime.etl.async.AsyncOrderDetailRedisRequest
@@ -13,7 +12,7 @@ import org.apache.flink.streaming.api.scala.{AsyncDataStream, DataStream, Stream
 import org.apache.flink.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
-import org.apache.hadoop.hbase.TableName
+import org.apache.hadoop.hbase.{HColumnDescriptor, HTableDescriptor, TableName}
 import org.apache.hadoop.hbase.client.{Connection, Put, Table}
 import org.apache.hadoop.hbase.util.Bytes
 
@@ -80,8 +79,18 @@ case class OrderDetailDataETL(env: StreamExecutionEnvironment) extends MysqlBase
         println("hbase open start")
         //初始化hbase的连接对象
         connection = HbaseUtil.getPool().getConnection
+        val admin = connection.getAdmin()
+
+        val tableName = GlobalConfigUtil.`hbase.table.orderdetail`
+
+        if (!admin.isTableAvailable(TableName.valueOf(tableName))) {
+          val hbaseTable = new HTableDescriptor(TableName.valueOf(tableName));
+
+          hbaseTable.addFamily(new HColumnDescriptor(GlobalConfigUtil.`hbase.table.family`));
+          admin.createTable(hbaseTable);
+        }
         //初始化要写入的表名
-        table = connection.getTable(TableName.valueOf(GlobalConfigUtil.`hbase.table.orderdetail`))
+        table = connection.getTable(TableName.valueOf(tableName))
         println("hbase open end")
       }
 
