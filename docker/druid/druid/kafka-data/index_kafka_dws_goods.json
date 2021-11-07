@@ -1,0 +1,53 @@
+{
+  "type" : "kafka",
+  "dataSchema" : {
+    "dataSource" : "dws_goods",
+    "parser" : {
+      "type" : "string",
+      "parseSpec" : {
+        "format" : "json",
+        "timestampSpec" : {
+          "column" : "saleTime",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "dimensionsSpec" : {
+          "dimensions" : [ 
+            "shopId",
+            "goodsFirstCatId",
+            "goodsSecondCatId",
+            "goodsThirdCatId",
+            "brandId",
+            "goodsId",
+            "isSale"
+          ]
+        }
+      }
+    },
+    "metricsSpec" : [ {
+      "type" : "count",
+      "name" : "count"
+    }],
+    "granularitySpec" : {
+      "type" : "uniform",
+      "segmentGranularity" : "HOUR",
+      "queryGranularity" : "MINUTE",
+      "rollup" : true
+    }
+  },
+  "tuningConfig" : {
+    "type" : "kafka",
+    "maxRowsInMemory" : 1000000,
+    "maxRowsPerSegment" : 5000000,
+    "workerThreads" : 2
+  },
+  "ioConfig" : {
+  "topic" : "dwd_goods",
+  "consumerProperties" : {
+      "bootstrap.servers" : "node1:9092,node2:9092,node3:9092",
+      "group.id":"index_kafka_dws_goods"
+    },
+  "taskCount":1,
+  "replicas":1,
+  "taskDuration":"PT1H"
+  }
+}

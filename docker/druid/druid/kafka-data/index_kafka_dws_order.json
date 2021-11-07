@@ -1,0 +1,64 @@
+{
+  "type" : "kafka",
+  "dataSchema" : {
+    "dataSource" : "dws_order",
+    "parser" : {
+      "type" : "string",
+      "parseSpec" : {
+        "format" : "json",
+        "timestampSpec" : {
+          "column" : "createTime",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "dimensionsSpec" : {
+          "dimensions" : [ {
+            "name" : "areaId",
+            "type" : "long"
+          }, {
+            "name" : "orderStatus",
+            "type" : "long"
+          }, {
+            "name" : "userId",
+            "type" : "long"
+          }, {
+            "name" : "isPay",
+            "type" : "int"
+          }, {
+            "name" : "isFromCart",
+            "type" : "int"
+          } ]
+        }
+      }
+    },
+    "metricsSpec" : [ {
+      "type" : "count",
+      "name" : "count"
+    }, {
+  		"name" : "totalMoney",
+  		"type" : "doubleSum",
+  		"fieldName": "realTotalMoney"
+	  } ],
+    "granularitySpec" : {
+      "type" : "uniform",
+      "segmentGranularity" : "HOUR",
+      "queryGranularity" : "MINUTE",
+      "rollup" : true
+    }
+  },
+  "tuningConfig" : {
+    "type" : "kafka",
+    "maxRowsInMemory" : 1000000,
+    "maxRowsPerSegment" : 5000000,
+    "workerThreads" : 2
+  },
+  "ioConfig" : {
+	"topic" : "dwd_order",
+	"consumerProperties" : {
+      "bootstrap.servers" : "node1:9092,node2:9092,node3:9092",
+	    "group.id":"index_kafka_dws_order"
+    },
+	"taskCount":1,
+	"replicas":1,
+	"taskDuration":"PT1H"
+  }
+}

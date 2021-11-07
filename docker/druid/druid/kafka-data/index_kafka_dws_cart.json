@@ -1,0 +1,52 @@
+{
+  "type" : "kafka",
+  "dataSchema" : {
+    "dataSource" : "dws_cart",
+    "parser" : {
+      "type" : "string",
+      "parseSpec" : {
+        "format" : "json",
+        "timestampSpec" : {
+          "column" : "addTime",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "dimensionsSpec" : {
+          "dimensions" : [ 
+            "userId",
+      "goodsId"
+      ]
+        }
+      }
+    },
+    "metricsSpec" : [ {
+      "type" : "count",
+      "name" : "count"
+    }, {
+        "name" : "totalGoods",
+        "type" : "longSum",
+        "fieldName": "count"
+      } ],
+    "granularitySpec" : {
+      "type" : "uniform",
+      "segmentGranularity" : "HOUR",
+      "queryGranularity" : "MINUTE",
+      "rollup" : true
+    }
+  },
+  "tuningConfig" : {
+    "type" : "kafka",
+    "maxRowsInMemory" : 1000000,
+    "maxRowsPerSegment" : 5000000,
+    "workerThreads" : 2
+  },
+  "ioConfig" : {
+  "topic" : "dwd_cart",
+  "consumerProperties" : {
+      "bootstrap.servers" : "node1:9092,node2:9092,node3:9092",
+      "group.id":"index_kafka_dws_cart"
+    },
+  "taskCount":1,
+  "replicas":1,
+  "taskDuration":"PT1H"
+  }
+}
